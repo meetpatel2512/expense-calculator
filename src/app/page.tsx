@@ -1,254 +1,209 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import RetirementForm from "@/components/custom/RetirementForm";
+import RetirementTable from "@/components/custom/RetirementTable";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-export default function Home() {
+type UserInputType = {
+  currentAge: string;
+  retirementAge: string;
+  lifeExpectancy: string;
+  startingAssets: string;
+  monthlyIncome: string;
+  monthlyExpenses: string;
+  SmallCapInvestments: string;
+  MidCapInvestments: string;
+  LargeCapInvestments: string;
+  SavingCapInvestments: string;
+};
+
+const RetirementCalculator = () => {
+  const [staticData, setStaticData] = useState({
+    currentAge: "",
+    retirementAge: "",
+    lifeExpectancy: "",
+    startingAssets: "",
+    monthlyIncome: "",
+    monthlyExpenses: "",
+    SmallCapInvestments: "",
+    MidCapInvestments: "",
+    LargeCapInvestments: "",
+    SavingCapInvestments: "",
+  });
+
+  const [tableData, setTableData] = useState([]);
+  const [isStaticFilled, setIsStaticFilled] = useState(false);
+
+  // useEffect(() => {
+  //   const savedStaticData = JSON.parse(localStorage.getItem("staticData"));
+  //   const savedTableData = JSON.parse(localStorage.getItem("tableData")) || [];
+
+  //   if (savedStaticData) {
+  //     setStaticData(savedStaticData);
+  //     setIsStaticFilled(true);
+  //     if (savedTableData.length) {
+  //       setTableData(savedTableData);
+  //     } else {
+  //       generateTable(savedStaticData);
+  //     }
+  //   }
+  // }, []);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const [values, setValues] = useState({
-    income: 40000,
-    expense: 20000,
-    currentAge: 30,
-    ageToRetire: 60,
-    currentCorpus: 1000000,
-  });
-
-  const [investments, setInvestments] = useState([
-    { type: "Small Cap", returnRate: 12, value: 5000 },
-    { type: "Medium Cap", returnRate: 3, value: 8000 },
-    { type: "Large Cap", returnRate: 10, value: 12000 },
-    { type: "Bonds", returnRate: 8, value: 3000 },
-  ]);
-
-  const handleReturnChange = (index: number, value: string) => {
-    const updatedInvestments = [...investments];
-    updatedInvestments[index].returnRate = Number(value);
-    setInvestments(updatedInvestments);
+  const handleStaticSubmit = (data: UserInputType) => {
+    localStorage.setItem("staticData", JSON.stringify(data));
+    setStaticData(data);
+    setIsStaticFilled(true);
+    generateTable(data);
   };
 
-  const handleRangeChange = (key: string, value: number) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+  const generateTable = (data: UserInputType) => {
+    const {
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      startingAssets,
+      monthlyIncome,
+      monthlyExpenses,
+      SmallCapInvestments,
+      MidCapInvestments,
+      LargeCapInvestments,
+      SavingCapInvestments,
+    } = data;
+    const rows = [];
+    const percentage_corpus =
+      Number(startingAssets) / (Number(monthlyExpenses) * 12);
+    const return_year =
+      (Number(SmallCapInvestments) +
+        Number(MidCapInvestments) +
+        Number(LargeCapInvestments) +
+        Number(SavingCapInvestments)) /
+      4;
+
+    const avg_return_month = Number(return_year / 12);
+    let income_invest = 0;
+    let previous_Nx = Number(startingAssets);
+    let month = 1;
+    for (
+      let age = parseInt(currentAge) * 12;
+      age <= parseInt(lifeExpectancy) * 12;
+      age++
+    ) {
+      const year = month / 12;
+      const runningAge = parseInt(currentAge) + year;
+      const N = percentage_corpus + year / 2;
+      const Nx = previous_Nx + Number(income_invest);
+      const yearly_expenses = Number(Nx) / Number(N);
+      const monthly_expenses = yearly_expenses / 12;
+      const monthly_income =
+        runningAge <= Number(retirementAge) ? Number(monthlyIncome) : 0;
+      const expected_income = (avg_return_month * Nx) / 100;
+      income_invest = monthly_income - monthly_expenses + expected_income;
+
+      rows.push({
+        runningAge: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 2,
+        }).format(runningAge),
+
+        year: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 2,
+        }).format(year),
+
+        month,
+
+        N: Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+        }).format(N),
+
+        Nx: Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 0,
+        }).format(Nx),
+
+        yearly_expenses: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 0,
+        }).format(yearly_expenses),
+
+        monthly_expenses: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 0,
+        }).format(monthly_expenses),
+
+        monthly_income: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 0,
+        }).format(monthly_income),
+
+        income_Nx: Intl.NumberFormat("en-IN", {
+          style: "percent",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }).format(avg_return_month),
+
+        expected_income: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 0,
+        }).format(expected_income),
+
+        income_invest: Intl.NumberFormat("en-IN", {
+          maximumFractionDigits: 0,
+        }).format(income_invest),
+      });
+      month += 1;
+      previous_Nx = Nx;
+    }
+
+    setTableData(rows);
+    localStorage.setItem("tableData", JSON.stringify(rows));
   };
 
-  const onSubmit = (data: any) => {
-    console.log("Form submitted with data:", data);
+  const handleTableChange = (index, name, value) => {
+    const updatedTable = [...tableData];
+    updatedTable[index][name] = value;
+    setTableData(updatedTable);
+    localStorage.setItem("tableData", JSON.stringify(updatedTable));
+  };
+
+  const compareValues = (expected, actual) => {
+    if (expected && actual) {
+      const diff = Math.abs(parseFloat(expected) - parseFloat(actual));
+      if (diff / parseFloat(expected) > 0.2) return "high";
+      if (diff / parseFloat(expected) > 0.1) return "moderate";
+    }
+    return "normal";
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800">
-      <div className="p-6 rounded-md w-full h-full max-w-4xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-900">
-          Investment Calculator
-        </h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-6 lg:flex-row justify-between border rounded-lg shadow-lg bg-white p-6">
-            {/* Left Section */}
-            <div className="w-full lg:w-1/2">
-              {/* Monthly Income Range */}
-              <div className="my-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="income">Monthly Income</Label>
-                  <span className="text-sm bg-gray-200 rounded px-2 py-1 text-right w-20">
-                    {values.income}
-                  </span>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="income"
-                    type="range"
-                    min={10000}
-                    max={100000}
-                    step={1000}
-                    value={values.income}
-                    {...register("income", { required: "Income is required" })}
-                    className="w-full h-2 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full appearance-none px-0"
-                    onChange={(e) =>
-                      handleRangeChange("income", +e.target.value)
-                    }
-                  />
-                </div>
-              </div>
+    <div className="p-6  shadow-lg rounded-xl  bg-gradient-to-r from-green-200 via-green-300 to-blue-200">
+      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-center mb-8 text-blue-800 text-gray-800">
+        Retirement Calculator
+      </h1>
+      <RetirementForm
+        staticData={staticData}
+        isStaticFilled={isStaticFilled}
+        handleStaticSubmit={handleSubmit(handleStaticSubmit)}
+        errors={errors}
+        register={register}
+      />
 
-              {/* Monthly Expense Range */}
-              <div className="my-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="expense">Monthly Expense</Label>
-                  <span className="text-sm bg-gray-200 rounded px-2 py-1 text-right w-20">
-                    {values.expense}
-                  </span>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="expense"
-                    type="range"
-                    min={5000}
-                    max={50000}
-                    step={500}
-                    value={values.expense}
-                    {...register("expense", {
-                      required: "Expense is required",
-                    })}
-                    className="w-full h-2 bg-gradient-to-r from-red-400 to-orange-600 rounded-full appearance-none px-0"
-                    onChange={(e) =>
-                      handleRangeChange("expense", +e.target.value)
-                    }
-                  />
-                  {errors.expense && (
-                    <span className="text-red-500 text-sm">
-                      {errors.expense.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Current Age Range */}
-              <div className="my-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="currentAge">Current Age</Label>
-                  <span className="text-sm bg-gray-200 rounded px-2 py-1 text-right w-20">
-                    {values.currentAge}
-                  </span>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="currentAge"
-                    type="range"
-                    min={18}
-                    max={80}
-                    value={values.currentAge}
-                    {...register("currentAge", {
-                      required: "Current Age is required",
-                    })}
-                    className="w-full h-2 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-full appearance-none px-0"
-                    onChange={(e) =>
-                      handleRangeChange("currentAge", +e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Age to Retire Range */}
-              <div className="my-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="ageToRetire">Age to Retire</Label>
-                  <span className="text-sm bg-gray-200 rounded px-2 py-1 text-right w-20">
-                    {values.ageToRetire}
-                  </span>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="ageToRetire"
-                    type="range"
-                    min={40}
-                    max={100}
-                    value={values.ageToRetire}
-                    {...register("ageToRetire", {
-                      required: "Age to Retire is required",
-                    })}
-                    className="w-full h-2 bg-gradient-to-r from-purple-400 to-pink-600 rounded-full appearance-none px-0"
-                    onChange={(e) =>
-                      handleRangeChange("ageToRetire", +e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Current Investment Corpus Range */}
-              <div className="my-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="currentCorpus">
-                    Current Investment Corpus
-                  </Label>
-                  <span className="text-sm bg-gray-200 rounded px-2 py-1 text-right w-20">
-                    {values.currentCorpus}
-                  </span>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="currentCorpus"
-                    type="range"
-                    min={0}
-                    max={10000000}
-                    step={10000}
-                    value={values.currentCorpus}
-                    {...register("currentCorpus", {
-                      required: "Current Corpus is required",
-                    })}
-                    className="w-full h-2 bg-gradient-to-r from-yellow-400 to-green-600 rounded-full appearance-none px-0"
-                    onChange={(e) =>
-                      handleRangeChange("currentCorpus", +e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Right Section */}
-            <div className="w-full lg:w-1/2 mt-5 lg:mt-0 lg:ml-4 border-l p-5">
-              <table className="min-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="text-gray-900">
-                    <th className="py-2 px-4 border">Investment Type</th>
-                    <th className="py-2 px-4 border">Investment Value</th>
-                    <th className="py-2 px-4 border">Return (%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {investments.map((investment, index) => (
-                    <tr key={index}>
-                      <td className="py-2 px-4 border">{investment.type}</td>
-
-                      {/* Investment Value */}
-                      <td className="py-2 px-4 border">
-                        <Input
-                          type="number"
-                          {...register(`investments[${index}].value`, {
-                            required: true,
-                          })}
-                          defaultValue={investment.value}
-                          className="w-20 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-
-                      {/* Return Rate */}
-                      <td className="py-2 px-4 border">
-                        <Input
-                          type="number"
-                          {...register(`investments[${index}].returnRate`, {
-                            required: true,
-                          })}
-                          defaultValue={investment.returnRate}
-                          className="w-20 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          onChange={(e) => {
-                            handleReturnChange(index, e.target.value);
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-center">
-            <Button
-              type="submit"
-              className="lg:w-1/4 w-full bg-teal-600 hover:bg-teal-500 text-white rounded-lg py-2"
-            >
-              Calculate
-            </Button>
-          </div>
-        </form>
-      </div>
+      {isStaticFilled && (
+        <div>
+          <h2 className="text-2xl font-semibold mb-4 text-green-600">
+            Generated Table
+          </h2>
+          <RetirementTable
+            tableData={tableData}
+            handleTableChange={handleTableChange}
+            compareValues={compareValues}
+          />
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default RetirementCalculator;
