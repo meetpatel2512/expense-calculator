@@ -15,10 +15,12 @@ function ReturnsForm({
   disabledForm,
   onChange,
   defaultData,
+  className,
 }: {
   disabledForm: boolean;
   onChange: (data: FormDataType) => void;
   defaultData?: FormDataType;
+  className?: string;
 }) {
   const { watch, register, reset } = useForm({});
 
@@ -34,7 +36,9 @@ function ReturnsForm({
   }, [watch, onChange]);
 
   return (
-    <form className="w-full flex-1 flex flex-col  p-6 rounded-lg shadow-lg bg-white">
+    <form
+      className={`w-full flex-1 flex flex-col  p-6 rounded-lg shadow-lg bg-white  ${className}`}
+    >
       <h2 className="text-3xl font-semibold text-gray-800 mb-8">
         Investment Details
       </h2>
@@ -102,7 +106,7 @@ function ReturnsForm({
         <div className="flex w-full gap-6 py-6">
           <div className="space-y-2 w-full">
             <Label className="text-lg font-medium text-gray-700">
-              {"Monthy Income"}
+              {"Monthly Income"}
             </Label>
             <Input
               type="number"
@@ -117,7 +121,7 @@ function ReturnsForm({
           </div>
           <div className="space-y-2 w-full">
             <Label className="text-lg font-medium text-gray-700">
-              {"monthly Expenses"}
+              {"Monthly Expenses"}
             </Label>
             <Input
               type="number"

@@ -26,8 +26,8 @@ export const RetirementForm = ({
   }, [watch, onChange]);
 
   return (
-    <div className="w-1/3 bg-white p-6 rounded-lg shadow-lg ">
-      <h1 className="text-3xl font-semibold text-gray-800">
+    <div className="w-full bg-white p-6 rounded-lg shadow-lg md:w-1/3">
+      <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
         Retirement Calculator
       </h1>
 

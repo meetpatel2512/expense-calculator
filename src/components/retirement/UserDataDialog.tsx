@@ -1,13 +1,18 @@
 "use client";
 
 import { FormDataType } from "@/types/form";
-import { Dialog } from "@mui/material";
-import Button from "@mui/material/Button";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import ReturnsForm from "./ReturnsForm";
-import React, { useMemo } from "react";
 import { PencilIcon } from "lucide-react";
+import React, { useMemo } from "react";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "../ui/dialog";
+import ReturnsForm from "./ReturnsForm";
 
 const DialogDemo = ({
   id,
@@ -18,10 +23,6 @@ const DialogDemo = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const [data, setData] = React.useState<FormDataType>({});
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -56,51 +57,32 @@ const DialogDemo = ({
 
   return (
     <>
-      <Button
-        size="small"
-        variant="text"
-        sx={{
-          minWidth: "auto",
-        }}
-        onClick={handleClickOpen}
-      >
-        <PencilIcon className="h-4 w-4" />
-      </Button>
-      {open && (
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          PaperProps={{
-            component: "form",
-            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              const formData = new FormData(event.currentTarget);
-              const formJson = Object.fromEntries(formData.entries());
-              const email = formJson.email;
-              console.log(email);
-              handleClose();
-            },
-          }}
-        >
-          <DialogContent sx={{ p: 0 }}>
-            <ReturnsForm
-              disabledForm={false}
-              onChange={(data) => {
-                setData(data);
-              }}
-              defaultData={old}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button variant="outlined" onClick={handleClose}>
+      <Dialog open={open} onOpenChange={() => setOpen(true)}>
+        <DialogTrigger asChild>
+          <PencilIcon className="h-4 w-4 m-2" />
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="hidden" />
+          </DialogHeader>
+          <ReturnsForm
+            disabledForm={false}
+            onChange={(data) => {
+              setData(data);
+            }}
+            defaultData={old}
+            className="p-0 shadow-none"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button variant="contained" onClick={saveData}>
+            <Button variant="outline" onClick={saveData}>
               Save
             </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -20,9 +20,9 @@ export const RetirementTable = ({
   tableData: TableRowData[];
 }) => {
   return (
-    <div className="m-6 border rounded-2xl overflow-scroll shadow-sm">
-      <Table className="min-w-full table-auto overflow-x-auto bg-transparent ">
-        <TableHeader className="">
+    <div className="m-6 border rounded-2xl shadow-sm">
+      <Table className="bg-transparent">
+        <TableHeader className="sticky top-0 left-0 z-10">
           <TableRow className=" text-white bg-gradient-to-r from-blue-400 to-violet-400">
             <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Age

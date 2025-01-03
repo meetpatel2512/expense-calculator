@@ -95,36 +95,29 @@ export const RootComponent = () => {
     if (resetKey !== 0) {
       reCalculateData(formData);
     }
-  }, [resetKey]);
+  }, [resetKey, formData, reCalculateData]);
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        width: "100vw",
-      }}
-    >
+    <div>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#f87171", // red-400
-          gap: "1.5rem", // gap-6
-          padding: "1.5rem", // p-6
+          backgroundColor: "#f87171",
+          gap: "1.5rem",
           height: "auto",
           width: "100%",
           background: "linear-gradient(to right, #ddd6f3, #fbc2eb)",
         }}
+        className="md:p-6"
       >
         <div className="flex flex-col gap-6 p-6 ">
-          <div className="flex gap-6">
+          <div className="flex gap-6 flex-col sm:flex-row">
             <RetirementForm disabledForm={disabledForm} onChange={onChange} />
             <ReturnsForm
               disabledForm={disabledForm}
               onChange={onChange}
-              defaultData={JSON.parse(
-                localStorage.getItem("staticData") || "{}"
-              )}
+              defaultData={formData}
             />
           </div>
           <div className="flex justify-end">
