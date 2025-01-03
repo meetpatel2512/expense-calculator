@@ -10,8 +10,6 @@ export const RetirementForm = ({
   onChange: (data: FormDataType) => void;
   disabledForm: boolean;
 }) => {
-  console.log("file: RetirementForm.tsx:14 | disabledForm:", disabledForm);
-
   const { watch, getValues, register, reset } = useForm<FormDataType>({
     disabled: disabledForm,
   });
@@ -28,7 +26,7 @@ export const RetirementForm = ({
   }, [watch, onChange]);
 
   return (
-    <div className="w-1/3 bg-white p-3 rounded-lg shadow-lg ">
+    <div className="w-1/3 bg-white p-6 rounded-lg shadow-lg ">
       <h1 className="text-3xl font-semibold text-gray-800">
         Retirement Calculator
       </h1>

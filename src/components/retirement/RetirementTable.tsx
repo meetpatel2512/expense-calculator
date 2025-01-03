@@ -10,59 +10,73 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import DialogDemo from "./UserDataDialog";
 
 export const RetirementTable = ({
   tableData,
+  setResetKey,
 }: {
+  setResetKey: (key: number) => void;
   tableData: TableRowData[];
 }) => {
   return (
-    <div className="p-6">
+    <div className="m-6 border rounded-2xl overflow-scroll shadow-sm">
       <Table className="min-w-full table-auto overflow-x-auto bg-transparent ">
         <TableHeader className="">
-          <TableRow className=" text-green-700 bg-gray-100">
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+          <TableRow className=" text-white bg-gradient-to-r from-blue-400 to-violet-400">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Age
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Year
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Month
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               N
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Nx
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
-              Yearly Expenses
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Expense/Year
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
-              Monthly Expenses (Expected)
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Expense/month (Expected)
             </TableHead>
-            {/* <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">Monthly Expenses (Actual)</TableHead> */}
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
-              Monthly Income (Expected)
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Expense/month (Actual)
             </TableHead>
-            {/* <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">Monthly Income (Actual)</TableHead> */}
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            {/* <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">Monthly Expenses (Actual)</TableHead> */}
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Income/month (Expected)
+            </TableHead>
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Income/month (Actual)
+            </TableHead>
+            {/* <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">Monthly Income (Actual)</TableHead> */}
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Income from Nx (%)
             </TableHead>
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Income from Nx (Expected)
             </TableHead>
 
-            {/* <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">Assets</TableHead> */}
-            <TableHead className="px-4 py-2 text-center border border-black font-bold text-blue-800">
+            {/* <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">Assets</TableHead> */}
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Income to Invest
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {tableData?.map((row, index) => (
-            <Row key={index} row={row} index={index} />
+            <Row
+              key={index}
+              row={row}
+              index={index}
+              setResetKey={setResetKey}
+            />
           ))}
         </TableBody>
       </Table>
@@ -70,7 +84,15 @@ export const RetirementTable = ({
   );
 };
 
-const Row = ({ row, index }: { row: TableRowData; index: number }) => {
+const Row = ({
+  row,
+  index,
+  setResetKey,
+}: {
+  row: TableRowData;
+  index: number;
+  setResetKey: (key: number) => void;
+}) => {
   const a = Math.ceil(Number(row.runningAge)) == Number(row.runningAge);
 
   return (
@@ -78,106 +100,48 @@ const Row = ({ row, index }: { row: TableRowData; index: number }) => {
       <TableRow
         key={index}
         className={`hover:bg-green-100 ${
-          a ? "bg-green-400" : ""
+          a ? "bg-green-200" : ""
         } transition-all duration-300 `}
       >
-        <TableCell className="px-4 py-2 text-center border border-black">
-          {row.runningAge}
-          <DialogDemo />
+        <TableCell className="px-4 py-2 text-center border">
+          <div className="flex items-center">
+            <DialogDemo id={row.runningAge} setResetKey={setResetKey} />
+            {row.runningAge}
+          </div>
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
           {row.year}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
           {row.month}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
-          {row.N}
-        </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
-          {row.Nx}
-        </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">{row.N}</TableCell>
+        <TableCell className="px-4 py-2 text-center border">{row.Nx}</TableCell>
+        <TableCell className="px-4 py-2 text-center border">
           {row.yearly_expenses}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
           {row.monthly_expenses}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
+          {row.actual_expenses}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border">
           {row.monthly_income}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
+          {row.actual_income}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border">
           {row.income_Nx}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
           {row.expected_income}
         </TableCell>
-        <TableCell className="px-4 py-2 text-center border border-black">
+        <TableCell className="px-4 py-2 text-center border">
           {row.income_invest}
         </TableCell>
       </TableRow>
     </>
   );
 };
-
-import { Dialog } from "@mui/material";
-import Button from "@mui/material/Button";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import ReturnsForm from "./ReturnsForm";
-
-const DialogDemo = () => {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  return (
-    <>
-      <Button size="small" variant="outlined" onClick={handleClickOpen}>
-        Open
-      </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          component: "form",
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const email = formJson.email;
-            console.log(email);
-            handleClose();
-          },
-        }}
-      >
-        <DialogContent sx={{ p: 0 }}>
-          {open && (
-            <ReturnsForm
-              disabledForm={false}
-              onChange={(data) => {
-                console.log(data);
-              }}
-            />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button variant="contained" type="submit">
-            Subscribe
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-};
-
-export default DialogDemo;

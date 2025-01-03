@@ -13,6 +13,8 @@ import { useCallback, useEffect, useState } from "react";
 export const RootComponent = () => {
   const [tableData, setTableData] = useState<TableRowData[]>([]);
   const [disabledForm, setDisabledForm] = useState<boolean>();
+  const [resetKey, setResetKey] = useState(0);
+
   const [formData, setFormData] = useState<FormDataType>({
     currentAge: 24,
     retirementAge: 50,
@@ -40,6 +42,17 @@ export const RootComponent = () => {
     monthlyExpenses: 10000,
   });
 
+  const [userData, setUserData] = useState<Record<string, string | undefined>>(
+    {}
+  );
+
+  useEffect(() => {
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      setUserData(JSON.parse(savedUserData));
+    }
+  }, [resetKey]);
+
   useEffect(() => {
     const savedStaticData = localStorage.getItem("staticData");
     const savedTableData = localStorage.getItem("tableData");
@@ -59,16 +72,18 @@ export const RootComponent = () => {
     [setFormData]
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceFn = useCallback(
-    debounce((formData: FormDataType) => {
-      const calculatedData = calculateRetirementSavings(formData);
+  const reCalculateData = useCallback(
+    (formData: FormDataType) => {
+      const calculatedData = calculateRetirementSavings(formData, userData);
       setTableData(calculatedData);
       localStorage.setItem("staticData", JSON.stringify(formData));
       localStorage.setItem("tableData", JSON.stringify(calculatedData));
-    }, 1000),
-    []
+    },
+    [userData]
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceFn = useCallback(debounce(reCalculateData, 1000), [userData]);
 
   useEffect(() => {
     if (formData) {
@@ -76,27 +91,61 @@ export const RootComponent = () => {
     }
   }, [debounceFn, formData]);
 
-  return (
-    <>
-      <div className="flex flex-col gap-6 p-6 ">
-        <div className="flex gap-6">
-          <RetirementForm disabledForm={disabledForm} onChange={onChange} />
-          <ReturnsForm disabledForm={disabledForm} onChange={onChange} />
-        </div>
-        <div className="flex justify-end">
-          <Button
-            className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg shadow-md hover:from-blue-500 hover:to-green-500 transition-all duration-300"
-            onClick={() => {
-              localStorage.setItem("disabled", disabledForm.toString());
-              setDisabledForm(!disabledForm);
-            }}
-          >
-            {disabledForm ? "Enable Form" : "Disable Form"}
-          </Button>
-        </div>
-      </div>
+  useEffect(() => {
+    if (resetKey !== 0) {
+      reCalculateData(formData);
+    }
+  }, [resetKey]);
 
-      <RetirementTable tableData={tableData} />
-    </>
+  return (
+    <div
+      style={{
+        height: "100vh",
+        width: "100vw",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "#f87171", // red-400
+          gap: "1.5rem", // gap-6
+          padding: "1.5rem", // p-6
+          height: "auto",
+          width: "100%",
+          background: "linear-gradient(to right, #ddd6f3, #fbc2eb)",
+        }}
+      >
+        <div className="flex flex-col gap-6 p-6 ">
+          <div className="flex gap-6">
+            <RetirementForm disabledForm={disabledForm} onChange={onChange} />
+            <ReturnsForm
+              disabledForm={disabledForm}
+              onChange={onChange}
+              defaultData={JSON.parse(
+                localStorage.getItem("staticData") || "{}"
+              )}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="contained"
+              sx={{
+                background:
+                  "linear-gradient(to right, #ec4899, #f43f5e)" /* from-pink-500 to-rose-500 */,
+              }}
+              onClick={() => {
+                localStorage.setItem("disabled", disabledForm.toString());
+                setDisabledForm(!disabledForm);
+              }}
+            >
+              {disabledForm ? "Enable Form" : "Disable Form"}
+            </Button>
+          </div>
+        </div>
+
+        <RetirementTable tableData={tableData} setResetKey={setResetKey} />
+      </div>
+    </div>
   );
 };

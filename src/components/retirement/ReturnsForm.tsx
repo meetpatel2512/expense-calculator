@@ -14,14 +14,16 @@ import { useEffect } from "react";
 function ReturnsForm({
   disabledForm,
   onChange,
+  defaultData,
 }: {
   disabledForm: boolean;
   onChange: (data: FormDataType) => void;
+  defaultData?: FormDataType;
 }) {
   const { watch, register, reset } = useForm({});
 
   useEffect(() => {
-    reset(JSON.parse(localStorage.getItem("staticData") || "{}"));
+    if (defaultData) reset(defaultData as FormDataType);
   }, []);
 
   useEffect(() => {
@@ -32,8 +34,8 @@ function ReturnsForm({
   }, [watch, onChange]);
 
   return (
-    <form className="w-full flex-1 flex flex-col bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold text-gray-800 border-b pb-3 mb-6">
+    <form className="w-full flex-1 flex flex-col  p-6 rounded-lg shadow-lg bg-white">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-8">
         Investment Details
       </h2>
 
