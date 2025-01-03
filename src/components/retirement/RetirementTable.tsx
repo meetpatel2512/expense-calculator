@@ -20,7 +20,7 @@ export const RetirementTable = ({
   tableData: TableRowData[];
 }) => {
   return (
-    <div className="m-6 border rounded-2xl shadow-sm">
+    <div className="mx-6 border rounded-2xl shadow-sm">
       <Table className="bg-transparent">
         <TableHeader className="sticky top-0 left-0 z-10">
           <TableRow className=" text-white bg-gradient-to-r from-blue-400 to-violet-400">
