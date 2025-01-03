@@ -1,4 +1,7 @@
+"use client";
+
 import { TableRowData } from "@/types/table";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -59,47 +62,122 @@ export const RetirementTable = ({
         </TableHeader>
         <TableBody>
           {tableData?.map((row, index) => (
-            <TableRow
-              key={index}
-              className="hover:bg-green-100 transition-all duration-300 even:bg-gray-100"
-            >
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.runningAge}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.year}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.month}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.N}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.Nx}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.yearly_expenses}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.monthly_expenses}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.monthly_income}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.income_Nx}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.expected_income}
-              </TableCell>
-              <TableCell className="px-4 py-2 text-center border border-black">
-                {row.income_invest}
-              </TableCell>
-            </TableRow>
+            <Row key={index} row={row} index={index} />
           ))}
         </TableBody>
       </Table>
     </div>
   );
 };
+
+const Row = ({ row, index }: { row: TableRowData; index: number }) => {
+  const a = Math.ceil(Number(row.runningAge)) == Number(row.runningAge);
+
+  return (
+    <>
+      <TableRow
+        key={index}
+        className={`hover:bg-green-100 ${
+          a ? "bg-green-400" : ""
+        } transition-all duration-300 `}
+      >
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.runningAge}
+          <DialogDemo />
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.year}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.month}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.N}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.Nx}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.yearly_expenses}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.monthly_expenses}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.monthly_income}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.income_Nx}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.expected_income}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border border-black">
+          {row.income_invest}
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
+
+import { Dialog } from "@mui/material";
+import Button from "@mui/material/Button";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import ReturnsForm from "./ReturnsForm";
+
+const DialogDemo = () => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Button size="small" variant="outlined" onClick={handleClickOpen}>
+        Open
+      </Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            const email = formJson.email;
+            console.log(email);
+            handleClose();
+          },
+        }}
+      >
+        <DialogContent sx={{ p: 0 }}>
+          {open && (
+            <ReturnsForm
+              disabledForm={false}
+              onChange={(data) => {
+                console.log(data);
+              }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="contained" type="submit">
+            Subscribe
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+export default DialogDemo;

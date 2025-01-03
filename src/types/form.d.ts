@@ -1,11 +1,17 @@
-export type InvestmentType = { return: string; percentage: string };
-
 export type FormDataType = {
-    currentAge: string;
-    retirementAge: string;
-    lifeExpectancy: string;
-    startingAssets: string;
-    monthlyIncome: string;
-    monthlyExpenses: string;
-    investment: InvestmentType[];
+  currentAge?: number | undefined;
+  retirementAge?: number | undefined;
+  lifeExpectancy?: number | undefined;
+  startingAssets?: number | undefined;
+  monthlyIncome?: number | undefined;
+  monthlyExpenses?: number | undefined;
+  investment?:
+    | (
+        | {
+            return?: number | undefined;
+            percentage?: number | undefined;
+          }
+        | undefined
+      )[]
+    | undefined;
 };
