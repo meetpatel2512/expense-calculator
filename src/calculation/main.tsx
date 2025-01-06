@@ -20,7 +20,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export const RootComponent = () => {
   const [tableData, setTableData] = useState<TableRowData[]>([]);
-  const [disabledForm, setDisabledForm] = useState<boolean>();
+  const [disabledForm, setDisabledForm] = useState<boolean>(true);
   const [resetKey, setResetKey] = useState(0);
 
   const [formData, setFormData] = useState<FormDataType>({
@@ -66,7 +66,7 @@ export const RootComponent = () => {
     const savedTableData = localStorage.getItem("tableData");
     const savedDisabledForm = localStorage.getItem("disabled");
 
-    setDisabledForm(savedDisabledForm === "true");
+    setDisabledForm(JSON.parse(savedDisabledForm));
     if (savedStaticData) {
       setFormData(JSON.parse(savedStaticData));
     }
@@ -121,13 +121,36 @@ export const RootComponent = () => {
       >
         <div className="flex flex-col gap-6 p-6 ">
           {!disabledForm ? (
-            <div className="flex gap-6 flex-col sm:flex-row">
-              <RetirementForm disabledForm={disabledForm} onChange={onChange} />
-              <ReturnsForm
-                disabledForm={disabledForm}
-                onChange={onChange}
-                defaultData={formData}
-              />
+            <div>
+              <div className="flex gap-6 flex-col sm:flex-row">
+                <RetirementForm
+                  disabledForm={disabledForm}
+                  onChange={onChange}
+                />
+                <ReturnsForm
+                  disabledForm={disabledForm}
+                  onChange={onChange}
+                  defaultData={formData}
+                  className="p-6"
+                />
+              </div>
+              <Button
+                variant="contained"
+                sx={{
+                  background:
+                    "linear-gradient(to right, #ec4899, #f43f5e)" /* from-pink-500 to-rose-500 */,
+                  marginTop: "1rem",
+                }}
+                onClick={() => {
+                  setDisabledForm(!disabledForm);
+                  localStorage.setItem(
+                    "disabled",
+                    JSON.stringify(!disabledForm)
+                  );
+                }}
+              >
+                {disabledForm ? "Enable Form" : "Disable Form"}
+              </Button>
             </div>
           ) : (
             <Dialog>
@@ -156,40 +179,41 @@ export const RootComponent = () => {
                       disabledForm={disabledForm}
                       onChange={onChange}
                       defaultData={formData}
+                      className="p-6"
                     />
                   </div>
-                  <div className="flex justify-between">
-                    <DialogFooter>
+
+                  <DialogFooter>
+                    <div className="flex justify-between w-full">
+                      <Button
+                        variant="contained"
+                        sx={{
+                          background:
+                            "linear-gradient(to right, #ec4899, #f43f5e)" /* from-pink-500 to-rose-500 */,
+                        }}
+                        onClick={() => {
+                          localStorage.setItem(
+                            "disabled",
+                            JSON.stringify(!disabledForm)
+                          );
+                          setDisabledForm(!disabledForm);
+                        }}
+                      >
+                        {disabledForm ? "Enable Form" : "Disable Form"}
+                      </Button>
+
                       <DialogClose asChild>
                         <Button type="button" variant="contained">
                           Close
                         </Button>
                       </DialogClose>
-                    </DialogFooter>
-                  </div>
+                    </div>
+                  </DialogFooter>
                 </div>
               </DialogContent>
             </Dialog>
           )}
-          {!disabledForm && (
-            <div className="flex justify-end">
-              <Button
-                variant="contained"
-                sx={{
-                  background:
-                    "linear-gradient(to right, #ec4899, #f43f5e)" /* from-pink-500 to-rose-500 */,
-                }}
-                onClick={() => {
-                  localStorage.setItem("disabled", disabledForm.toString());
-                  setDisabledForm(!disabledForm);
-                }}
-              >
-                {disabledForm ? "Enable Form" : "Disable Form"}
-              </Button>
-            </div>
-          )}
         </div>
-
         <RetirementTable tableData={tableData} setResetKey={setResetKey} />
       </div>
     </div>

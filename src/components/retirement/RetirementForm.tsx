@@ -1,5 +1,5 @@
 import { FormDataType } from "@/types/form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { SliderWithInput } from "../Slider";
 
@@ -10,14 +10,19 @@ export const RetirementForm = ({
   onChange: (data: FormDataType) => void;
   disabledForm: boolean;
 }) => {
+  const [staticData, setStaticData] = useState<FormDataType>({});
   const { watch, getValues, reset } = useForm<FormDataType>({
     disabled: disabledForm,
-    defaultValues: JSON.parse(localStorage.getItem("staticData") || "{}"),
+    defaultValues: staticData,
   });
 
   useEffect(() => {
-    reset(JSON.parse(localStorage.getItem("staticData") || "{}"));
-  }, []);
+    const savedStaticData = localStorage.getItem("staticData");
+    if (savedStaticData) {
+      setStaticData(JSON.parse(savedStaticData));
+      reset(JSON.parse(savedStaticData));
+    }
+  }, [reset]);
 
   useEffect(() => {
     const { unsubscribe } = watch((value) => {

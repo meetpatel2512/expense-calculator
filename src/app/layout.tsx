@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import AddSense from "@/components/GoogleAds/AddSense";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,6 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>{process.env.NODE_ENV === "production" && <AddSense />}</head>
       <body className={`${inter.variable}`}>{children}</body>
     </html>
   );

@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "../ui/dialog";
 import ReturnsForm from "./ReturnsForm";
 
@@ -61,7 +61,7 @@ const DialogDemo = ({
         <DialogTrigger asChild>
           <PencilIcon className="h-4 w-4 m-2" />
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="p-5">
           <DialogHeader>
             <DialogTitle className="hidden" />
           </DialogHeader>
@@ -71,7 +71,7 @@ const DialogDemo = ({
               setData(data);
             }}
             defaultData={old}
-            className="p-0 shadow-none"
+            className="shadow-none"
           />
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>

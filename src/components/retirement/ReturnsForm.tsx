@@ -37,9 +37,9 @@ function ReturnsForm({
 
   return (
     <form
-      className={`w-full flex-1 flex flex-col  p-6 rounded-lg shadow-lg bg-white  ${className}`}
+      className={`w-full flex-1 flex flex-col rounded-lg shadow-lg bg-white  ${className}`}
     >
-      <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-4">
         Investment Details
       </h2>
 
@@ -103,7 +103,7 @@ function ReturnsForm({
             )}
           </TableBody>
         </table>
-        <div className="flex w-full gap-6 py-6">
+        <div className="flex w-full gap-6 pt-6">
           <div className="space-y-2 w-full">
             <Label className="text-lg font-medium text-gray-700">
               {"Monthly Income"}
