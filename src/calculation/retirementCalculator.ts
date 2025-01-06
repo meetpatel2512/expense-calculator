@@ -1,126 +1,127 @@
 import { FormDataType } from "@/types/form";
 import { TableRowData } from "@/types/table";
 
-export const calculateRetirementSavings = (
-  data: FormDataType
-): TableRowData[] => {
-  const mappedData = Object.keys(data).reduce(
-    (acc, curr: string | undefined) => {
-      if (!curr) return acc;
-      if (typeof data[curr as keyof FormDataType] === "object") {
-        acc = {
-          ...acc,
-          [curr]: data[curr as "investment"]?.map((v) => ({
-            return: Number(v?.return),
-            percentage: Number(v?.percentage),
-          })),
-        };
-      } else {
-        acc = { ...acc, [curr]: Number(data[curr as keyof FormDataType]) };
-      }
-      return acc;
-    },
-    {} as FormDataType | undefined
-  );
+/**
+ * Maps input data to a consistent numeric format and processes investments data.
+ */
+const mapInputData = (data: FormDataType): FormDataType => {
+  return Object.keys(data).reduce((acc, curr: string | undefined) => {
+    if (!curr) return acc;
 
-  const currentAge = mappedData?.currentAge || 0;
-  const retirementAge = mappedData?.retirementAge || 0;
-  const lifeExpectancy = mappedData?.lifeExpectancy || 0;
-  const startingAssets = mappedData?.startingAssets || 0;
-  const monthlyIncome = mappedData?.monthlyIncome || 0;
-  const monthlyExpenses = mappedData?.monthlyExpenses || 0;
-  const investment = mappedData?.investment || [];
+    const value = data[curr as keyof FormDataType];
+    if (typeof value === "object") {
+      acc[curr] = value?.map((v) => ({
+        return: Number(v?.return),
+        percentage: Number(v?.percentage),
+      }));
+    } else {
+      acc[curr] = Number(value);
+    }
+    return acc;
+  }, {} as FormDataType);
+};
 
-  const Investments_Return = investment?.reduce((acc, item) => {
-    return acc + ((item?.percentage || 0) * (item?.return || 0)) / 100;
+/**
+ * Calculates the average return rate for investments.
+ */
+const calculateInvestmentReturn = (
+  investment: { return: number; percentage: number }[] = []
+): number => {
+  return investment.reduce((total, item) => {
+    return total + (item.percentage * item.return) / 100;
   }, 0);
+};
 
-  const percentage_corpus =
-    Number(startingAssets) / (Number(monthlyExpenses) * 12);
-  const return_year = Investments_Return;
-  const avg_return_month = Number(return_year) / 12;
+/**
+ * Formats a number to a currency or percentage format for display.
+ */
+const formatValue = (
+  value: number,
+  style: "currency" | "percent" = "currency",
+  digits = 0
+): string => {
+  const options: Intl.NumberFormatOptions =
+    style === "currency"
+      ? { style: "currency", currency: "INR", maximumFractionDigits: digits }
+      : { style: "percent", maximumFractionDigits: digits };
+  return Intl.NumberFormat("en-IN", options).format(value);
+};
 
-  let income_invest = 0;
-  let previous_Nx = Number(startingAssets);
+/**
+ * Generates the retirement savings data table.
+ */
+export const calculateRetirementSavings = (
+  data: FormDataType,
+  userData: Record<string, string | undefined>
+): TableRowData[] => {
+  const mappedData = mapInputData(data);
+  const {
+    currentAge = 0,
+    retirementAge = 0,
+    lifeExpectancy = 0,
+    startingAssets = 0,
+    monthlyIncome = 0,
+    monthlyExpenses = 0,
+    investment = [],
+  } = mappedData;
+
+  const validatedInvestment = investment.map((inv) => ({
+    return: inv.return !== undefined ? inv.return : 0,
+    percentage: inv.percentage !== undefined ? inv.percentage : 0,
+  }));
+
+  const investmentReturn = calculateInvestmentReturn(validatedInvestment);
+  const initialPercentageCorpus = startingAssets / (monthlyExpenses * 12);
+  const avgMonthlyReturnRate = investmentReturn / 12;
+
+  let incomeInvest = 0;
+  let previousNx = startingAssets;
   let month = 1;
-
-  // Array to store the calculated data
   const result: TableRowData[] = [];
 
   for (
-    let age = (currentAge || 0) * 12;
-    age < (lifeExpectancy || 0) * 12;
-    age++
+    let ageInMonths = currentAge * 12;
+    ageInMonths < lifeExpectancy * 12;
+    ageInMonths++
   ) {
     const year = month / 12;
-    const runningAge = (currentAge || 0) + year;
-    const N = percentage_corpus + year / 2;
-    const Nx = previous_Nx + Number(income_invest);
-    const yearly_expenses = Number(Nx) / Number(N);
-    const monthly_expenses = yearly_expenses / 12;
-    const monthly_income =
-      Number(runningAge) <= Number(retirementAge) ? Number(monthlyIncome) : 0;
-    const expected_income = (avg_return_month * Nx) / 100;
-    income_invest = monthly_income - monthly_expenses + expected_income;
+    const runningAge = currentAge + year;
+    const N = initialPercentageCorpus + year / 2;
+    const Nx = previousNx + incomeInvest;
+    const yearlyExpenses = Nx / N;
+    const monthlyExpensesCurrent = yearlyExpenses / 12;
+    const monthlyIncomeCurrent =
+      runningAge <= retirementAge ? monthlyIncome : 0;
+    const expectedIncome = (avgMonthlyReturnRate * Nx) / 100;
+    incomeInvest =
+      monthlyIncomeCurrent - monthlyExpensesCurrent + expectedIncome;
 
-    // Create the object for the current iteration
+    const yearInfo = JSON.parse(
+      userData[runningAge.toFixed(2).toString()] || "{}"
+    ) as FormDataType;
+
     result.push({
-      runningAge: Intl.NumberFormat("en-IN", {
-        maximumFractionDigits: 2,
-      }).format(Number(runningAge)),
-
-      year: Intl.NumberFormat("en-IN", {
-        maximumFractionDigits: 2,
-      }).format(year),
-
+      runningAge: runningAge.toFixed(2),
+      year: formatValue(year, "currency", 2),
       month: Intl.NumberFormat("en-IN").format(month),
-
       N: Intl.NumberFormat("en-IN").format(N),
-
-      Nx: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(Nx),
-
-      yearly_expenses: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(yearly_expenses),
-
-      monthly_expenses: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(monthly_expenses),
-
-      monthly_income: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(monthly_income),
-
-      income_Nx: Intl.NumberFormat("en-IN", {
-        style: "percent",
-        currency: "INR",
-        maximumFractionDigits: 2,
-      }).format(avg_return_month / 100),
-
-      expected_income: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(expected_income),
-
-      income_invest: Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(income_invest),
+      Nx: formatValue(Nx),
+      yearly_expenses: formatValue(yearlyExpenses),
+      monthly_expenses: formatValue(monthlyExpensesCurrent),
+      monthly_income: formatValue(monthlyIncomeCurrent),
+      income_Nx: formatValue(avgMonthlyReturnRate / 100, "percent", 2),
+      expected_income: formatValue(expectedIncome),
+      income_invest: formatValue(incomeInvest),
+      actual_income: yearInfo?.monthlyIncome,
+      actual_expenses: yearInfo?.monthlyExpenses,
+      actual_return: yearInfo?.investment?.reduce((total, item) => {
+        return total + (item.percentage * item.return) / 100;
+      }, 0),
     });
+
     month += 1;
-    previous_Nx = Nx;
+    previousNx = Nx;
   }
+
   return result;
 };

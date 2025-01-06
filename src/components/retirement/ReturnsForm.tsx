@@ -14,14 +14,18 @@ import { useEffect } from "react";
 function ReturnsForm({
   disabledForm,
   onChange,
+  defaultData,
+  className,
 }: {
   disabledForm: boolean;
   onChange: (data: FormDataType) => void;
+  defaultData?: FormDataType;
+  className?: string;
 }) {
   const { watch, register, reset } = useForm({});
 
   useEffect(() => {
-    reset(JSON.parse(localStorage.getItem("staticData") || "{}"));
+    if (defaultData) reset(defaultData as FormDataType);
   }, []);
 
   useEffect(() => {
@@ -32,8 +36,10 @@ function ReturnsForm({
   }, [watch, onChange]);
 
   return (
-    <form className="w-full flex-1 flex flex-col bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold text-gray-800 border-b pb-3 mb-6">
+    <form
+      className={`w-full flex-1 flex flex-col rounded-lg shadow-lg bg-white  ${className}`}
+    >
+      <h2 className="text-3xl font-semibold text-gray-800 mb-4">
         Investment Details
       </h2>
 
@@ -97,10 +103,10 @@ function ReturnsForm({
             )}
           </TableBody>
         </table>
-        <div className="flex w-full gap-6 py-6">
+        <div className="flex w-full gap-6 pt-6">
           <div className="space-y-2 w-full">
             <Label className="text-lg font-medium text-gray-700">
-              {"Monthy Income"}
+              {"Monthly Income"}
             </Label>
             <Input
               type="number"
@@ -115,7 +121,7 @@ function ReturnsForm({
           </div>
           <div className="space-y-2 w-full">
             <Label className="text-lg font-medium text-gray-700">
-              {"monthly Expenses"}
+              {"Monthly Expenses"}
             </Label>
             <Input
               type="number"
