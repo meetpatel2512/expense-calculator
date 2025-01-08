@@ -110,7 +110,7 @@ export const calculateRetirementSavings = (
       monthly_expenses: formatValue(monthlyExpensesCurrent),
       monthly_income: formatValue(monthlyIncomeCurrent),
       income_Nx: formatValue(avgMonthlyReturnRate / 100, "percent", 2),
-      expected_income: formatValue(expectedIncome),
+      expected_income: (expectedIncome),
       income_invest: formatValue(incomeInvest),
       actual_income: yearInfo?.monthlyIncome,
       actual_expenses: yearInfo?.monthlyExpenses,

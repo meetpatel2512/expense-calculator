@@ -1,8 +1,8 @@
 "use client";
 
+import { ChartResult } from "@/components/Charts/LineChart";
 import AddBanner from "@/components/GoogleAds/AddBanner";
 import { RootComponent } from "../calculation/main";
-
 const Page = () => {
   return (
     <>
@@ -12,6 +12,9 @@ const Page = () => {
         dataFullWidthResponsive={true}
       />
       <RootComponent />
+      <div className="">
+        <ChartResult />
+      </div>
     </>
   );
 };
