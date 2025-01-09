@@ -35,7 +35,7 @@ const calculateInvestmentReturn = (
 /**
  * Formats a number to a currency or percentage format for display.
  */
-const formatValue = (
+export const formatValue = (
   value: number,
   style: "currency" | "percent" = "currency",
   digits = 0
@@ -70,12 +70,15 @@ export const calculateRetirementSavings = (
     percentage: inv.percentage !== undefined ? inv.percentage : 0,
   }));
 
+
   const investmentReturn = calculateInvestmentReturn(validatedInvestment);
   const initialPercentageCorpus = startingAssets / (monthlyExpenses * 12);
   const avgMonthlyReturnRate = investmentReturn / 12;
 
   let incomeInvest = 0;
+  let incomeInvest_actual = 0;
   let previousNx = startingAssets;
+  let previousNx_actual = Number(startingAssets);
   let month = 1;
   const result: TableRowData[] = [];
 
@@ -84,21 +87,32 @@ export const calculateRetirementSavings = (
     ageInMonths < lifeExpectancy * 12;
     ageInMonths++
   ) {
+
     const year = month / 12;
     const runningAge = currentAge + year;
+    const yearInfo = JSON.parse(
+      userData[runningAge.toFixed(2).toString()] || "{}"
+    ) as FormDataType;
+
+    const monthlyInvestmentReturn = yearInfo?.investment?.reduce((total, item) => {
+      return total + (item.percentage * item.return) / 100;
+    }, 0) / 12;
+
     const N = initialPercentageCorpus + year / 2;
     const Nx = previousNx + incomeInvest;
+    const Nx_actual = previousNx_actual + Number(incomeInvest_actual);
     const yearlyExpenses = Nx / N;
     const monthlyExpensesCurrent = yearlyExpenses / 12;
     const monthlyIncomeCurrent =
       runningAge <= retirementAge ? monthlyIncome : 0;
     const expectedIncome = (avgMonthlyReturnRate * Nx) / 100;
+    const expectedIncome_actual = (monthlyInvestmentReturn * Nx_actual) / 100;
     incomeInvest =
       monthlyIncomeCurrent - monthlyExpensesCurrent + expectedIncome;
+    incomeInvest_actual = (yearInfo?.monthlyIncome - yearInfo?.monthlyExpenses + expectedIncome_actual) || 0;
 
-    const yearInfo = JSON.parse(
-      userData[runningAge.toFixed(2).toString()] || "{}"
-    ) as FormDataType;
+
+
 
     result.push({
       runningAge: runningAge.toFixed(2),
@@ -107,20 +121,19 @@ export const calculateRetirementSavings = (
       N: Intl.NumberFormat("en-IN").format(N),
       Nx: formatValue(Nx),
       yearly_expenses: formatValue(yearlyExpenses),
-      monthly_expenses: formatValue(monthlyExpensesCurrent),
-      monthly_income: formatValue(monthlyIncomeCurrent),
+      monthly_expenses: monthlyExpensesCurrent,
+      monthly_income: monthlyIncomeCurrent,
       income_Nx: formatValue(avgMonthlyReturnRate / 100, "percent", 2),
-      expected_income: formatValue(expectedIncome),
-      income_invest: formatValue(incomeInvest),
-      actual_income: yearInfo?.monthlyIncome,
-      actual_expenses: yearInfo?.monthlyExpenses,
-      actual_return: yearInfo?.investment?.reduce((total, item) => {
-        return total + (item.percentage * item.return) / 100;
-      }, 0),
+      expected_income: expectedIncome,
+      income_invest: incomeInvest,
+      actual_income: yearInfo?.monthlyIncome || 0,
+      actual_expenses: yearInfo?.monthlyExpenses || 0,
+      actual_return: incomeInvest_actual,
     });
 
     month += 1;
     previousNx = Nx;
+    previousNx_actual = Nx_actual;
   }
 
   return result;
