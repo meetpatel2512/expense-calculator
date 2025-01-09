@@ -15,7 +15,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useEffect, useState } from "react";
 import { TableRowData } from "@/types/table";
 
 // const chartData = [
@@ -27,39 +26,23 @@ import { TableRowData } from "@/types/table";
 //   { month: "June", desktop: 214, mobile: 140 },
 // ];
 
-const chartConfig = {
-  actual_income: {
-    label: "actual_income",
-    color: "red",
-  },
-  expected_income: {
-    label: "expected_income",
-    color: "blue",
-  },
-} satisfies ChartConfig;
-
-export function ChartResult() {
-  const [chartData, setChartData] = useState<TableRowData[]>();
-  useEffect(() => {
-    const staticTableData = localStorage.getItem("tableData");
-
-    if (staticTableData) {
-      const parseTableData = JSON.parse(staticTableData) || [];
-      const result = parseTableData
-        // .filter((d) => Math.ceil(Number(d.runningAge)) == Number(d.runningAge))
-        .map((data: TableRowData) => ({
-          month: +data.runningAge,
-          actual_income: data.actual_income ? +data.actual_income : 0,
-          expected_income: data.expected_income,
-        }));
-      setChartData(result);
-    }
-  }, []);
-
+export function ChartResult({
+  className,
+  chartData,
+  chartConfig,
+  dataKey,
+  title,
+}: {
+  className?: string;
+  chartData?: TableRowData[];
+  chartConfig: ChartConfig;
+  dataKey: string[];
+  title: string;
+}) {
   return (
-    <Card>
+    <Card className={`${className}`}>
       <CardHeader>
-        <CardTitle>Line Chart - Multiple</CardTitle>
+        <CardTitle>{title}</CardTitle>
         {/* <CardDescription>January - June 2024</CardDescription> */}
       </CardHeader>
       <CardContent>
@@ -67,34 +50,33 @@ export function ChartResult() {
           <LineChart
             // accessibilityLayer
             data={chartData}
-            // margin={{
-            //   left: 12,
-            //   right: 12,
-            // }}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
           >
             <CartesianGrid />
             <XAxis
               dataKey="month"
-              // tickLine={false}
-              // axisLine={false}
+              tickLine={false}
+              axisLine={false}
               tickMargin={8}
-              // tickFormatter={(value) => value.slice(0, 3)}
             />
             <YAxis />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Line
-              dataKey="actual_income"
+              dataKey={dataKey[0]}
               type="monotone"
               stroke="blue"
               strokeWidth={2}
-              // dot={false}
+              dot={false}
             />
             <Line
-              dataKey="expected_income"
+              dataKey={dataKey[1]}
               type="monotone"
               stroke="red"
               strokeWidth={2}
-              // dot={false}
+              dot={false}
             />
           </LineChart>
         </ChartContainer>

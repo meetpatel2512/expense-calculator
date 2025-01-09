@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "../ui/table";
 import DialogDemo from "./UserDataDialog";
+import { formatValue } from "@/calculation/retirementCalculator";
 
 export const RetirementTable = ({
   tableData,
@@ -61,6 +62,9 @@ export const RetirementTable = ({
             </TableHead>
             <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
               Income from Nx (Expected)
+            </TableHead>
+            <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">
+              Income from Nx (Actual)
             </TableHead>
 
             {/* <TableHead className="px-4 py-2 text-center border border-white font-bold text-white">Assets</TableHead> */}
@@ -121,25 +125,28 @@ const Row = ({
           {row.yearly_expenses}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.monthly_expenses}
+          {formatValue(row.monthly_expenses as number)}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.actual_expenses}
+          {formatValue(row.actual_expenses as number)}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.monthly_income}
+          {formatValue(row.monthly_income as number)}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.actual_income}
+          {formatValue(row.actual_income as number)}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
           {row.income_Nx}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.expected_income}
+          {formatValue(row.expected_income as number)}
         </TableCell>
         <TableCell className="px-4 py-2 text-center border">
-          {row.income_invest}
+          {formatValue(row.actual_return as number)}
+        </TableCell>
+        <TableCell className="px-4 py-2 text-center border">
+          {formatValue(row.income_invest as number)}
         </TableCell>
       </TableRow>
     </>
