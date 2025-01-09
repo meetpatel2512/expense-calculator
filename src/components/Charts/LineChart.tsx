@@ -57,7 +57,7 @@ export function ChartResult({
           >
             <CartesianGrid />
             <XAxis
-              dataKey="month"
+              dataKey="age"
               tickLine={false}
               axisLine={false}
               tickMargin={8}

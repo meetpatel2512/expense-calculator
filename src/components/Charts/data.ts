@@ -21,7 +21,7 @@ export const IncomeData = () => {
         const result = parseTableData
             // .filter((d) => Math.ceil(Number(d.runningAge)) == Number(d.runningAge))
             .map((data: TableRowData) => ({
-                month: +data.runningAge,
+                age: data.runningAge,
                 actual_income: data.actual_income ? +data.actual_income : 0,
                 expected_income: data.expected_income,
             }));
@@ -46,7 +46,7 @@ export const ExpenseData = () => {
         const result = parseTableData
             // .filter((d) => Math.ceil(Number(d.runningAge)) == Number(d.runningAge))
             .map((data: TableRowData) => ({
-                month: +data.runningAge,
+                age: data.runningAge,
                 actual_expense: data.actual_expenses ? +data.actual_expenses : 0,
                 expected_expense: data.monthly_expenses,
             }));
@@ -73,7 +73,7 @@ export const ReturnData = () => {
         const result = parseTableData
             // .filter((d) => Math.ceil(Number(d.runningAge)) == Number(d.runningAge))
             .map((data: TableRowData) => ({
-                month: +data.runningAge,
+                age: data.runningAge,
                 actual_return: data.actual_return ? +data.actual_return : 0,
                 expected_return: data.expected_income,
             }));
