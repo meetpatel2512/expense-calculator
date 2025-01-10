@@ -1,7 +1,8 @@
-"use client";
+// "use client";
 import { TableRowData } from "@/types/table";
 
-const staticTableData = localStorage.getItem("tableData");
+
+
 
 // Income Data 
 export const IncomeDataKey = ["actual_income", "expected_income"];
@@ -15,7 +16,7 @@ export const IncomeChartConfig = {
         color: "blue",
     },
 };
-export const IncomeData = () => {
+export const IncomeData = (staticTableData: string) => {
     if (staticTableData) {
         const parseTableData = JSON.parse(staticTableData) || [];
         const result = parseTableData
@@ -40,7 +41,7 @@ export const ExpenseChartConfig = {
         color: "blue",
     },
 };
-export const ExpenseData = () => {
+export const ExpenseData = (staticTableData: string) => {
     if (staticTableData) {
         const parseTableData = JSON.parse(staticTableData) || [];
         const result = parseTableData
@@ -67,7 +68,7 @@ export const ReturnChartConfig = {
         color: "blue",
     },
 };
-export const ReturnData = () => {
+export const ReturnData = (staticTableData: string) => {
     if (staticTableData) {
         const parseTableData = JSON.parse(staticTableData) || [];
         const result = parseTableData
